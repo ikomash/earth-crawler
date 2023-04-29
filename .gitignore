@@ -1,0 +1,20 @@
+# Cache folders and temporary files
+__pycache__/
+.pytest_cache/
+/cache
+/tmp
+
+# Local settings
+/.vscode
+
+# Logs
+/logs
+
+# Export files
+/exports
+
+# Building exe
+/build
+/dist
+*.spec
+/building_single_folder_libs.py
