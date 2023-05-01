@@ -1,5 +1,5 @@
 <div align="center">
-<img align="center" src="images\app-icon.png" width="30%" align="right"/>
+<img align="center" src="images/app-icon.png" width="20%" align="right"/>
 <h1> Earth Crawler</h1>
 </div>
 
