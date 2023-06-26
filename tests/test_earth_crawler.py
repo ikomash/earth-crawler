@@ -29,3 +29,15 @@ def test_search_line_proccessing(Crawler: EarthCrawler, Tmp: TempData) -> None:
     Tmp.search_line = "USA=5; China=6; Russia=4"
     test_list = Crawler.search_line_proccessing()
     assert test_list == [("USA", 5), ("China", 6), ("Russia", 4)]
+
+
+def test_choose_name_from_tag(Crawler: EarthCrawler, Tmp: TempData) -> None:
+    tags = {
+        "name": "Int_name", "name:en": "En_name", "name:de": "De_name",
+        "name:ru": "Ru_name"}
+    Tmp.objects_language = "de"
+    res = Crawler.choose_name_from_tag(tags)
+    assert res == "De_name"
+    Tmp.objects_language = ""
+    res = Crawler.choose_name_from_tag(tags)
+    assert res == "Int_name"

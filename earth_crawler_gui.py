@@ -277,7 +277,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.Tmp = TempData(mode="gui")
         # Main window setup
-        self.setWindowTitle("OSM to KML")
+        self.setWindowTitle("Earth Crawler")
         # self.setFixedSize(QSize(450, 350))
         # self.setMaximumSize(QSize(600, 500))
         self.setMinimumSize(QSize(500, 400))

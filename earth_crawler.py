@@ -105,7 +105,7 @@ class EarthCrawler():
             str: Object name
         """
         cur_lang_tag = f"name:{self.Tmp.objects_language}"
-        if f"name:{cur_lang_tag}" in tags:
+        if cur_lang_tag in tags:  # f"name:{cur_lang_tag}"
             return tags[cur_lang_tag]
         elif "neme:en" in tags:
             return tags["neme:en"]
