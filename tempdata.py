@@ -1,5 +1,6 @@
 import configparser
 from typing import Any
+from os import path, makedirs
 import logger
 from webcolors import name_to_hex, normalize_hex
 
@@ -65,7 +66,7 @@ class TempData():
 
         # self.search_mode = 0
         self.process_paused = True  # GUI only
-
+        self.check_necessary_folders()
         self.get_settings()
         self.set_logger()
 
@@ -90,6 +91,24 @@ class TempData():
         if self.mode == "gui":
             self.current_thread.processing_stages_signal.emit(  # type: ignore
                                 index)
+
+    def check_folder_existance(self, folder: str) -> None:
+        """
+        Checks whether folder exists or not. If not - creates new one.
+
+        Args:
+            folder (str): Folder path.
+        """
+        exists = path.exists(folder)
+        if not exists:
+            makedirs(folder)
+
+    def check_necessary_folders(self) -> None:
+        """
+        Checks whether important folders exist or not (creates if missing).
+        """
+        self.check_folder_existance(".//logs//")
+        self.check_folder_existance(".//export//")
 
     def get_settings(self) -> None:
         """

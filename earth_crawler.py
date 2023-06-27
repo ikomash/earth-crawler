@@ -150,7 +150,7 @@ class EarthCrawler():
         else:
             sub_name = "(polygons)"
         kml_file_name = f"{obj_name} {sub_name}"
-        self.kml_doc.save(f".\\exports\\{kml_file_name}.kml")
+        self.kml_doc.save(f".\\export\\{kml_file_name}.kml")
         print(f"KML file saved as {kml_file_name}")
 
     def save_excel(self, obj_name: str) -> None:
@@ -366,7 +366,7 @@ class EarthCrawler():
         try:
             if self.Tmp.search_locations and self.Tmp.export_to_excel:
                 self.excel_writer = pd.ExcelWriter(
-                    f".\\exports\\{self.Tmp.current_obj_name}.xlsx",
+                    f".\\export\\{self.Tmp.current_obj_name}.xlsx",
                     engine="xlsxwriter")
             for i, region in enumerate(overpass_regions.relations()):
                 if self.Tmp.search_borders and self.Tmp.search_locations:
