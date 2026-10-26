@@ -1,0 +1,15 @@
+services:
+  earth-crawler:
+    image: earth_crawler:${VERSION}
+    container_name: earth_crawler
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/wslg
+
+    environment:
+      DISPLAY: ":0"
+      XDG_RUNTIME_DIR: /mnt/wslg/runtime-dir
+      PULSE_SERVER: /mnt/wslg/PulseServer

@@ -1,0 +1,100 @@
+2026-06-23 05:27:47,840 - [ERROR] - WARNING - (osm_worker.py).script_sequence(448) - UncaughtException: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 445, in script_sequence
+    Converter.request_and_process_data(search_line)
+TypeError: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+2026-06-23 05:27:47,840 - [WARNING] - WARNING - (osm_worker.py).script_sequence(449) - Ending script due too uncaught exception
+2026-07-01 19:34:34,434 - [ERROR] - WARNING - (osm_worker.py).script_sequence(450) - UncaughtException: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 447, in script_sequence
+    Converter.request_and_process_data(search_line)
+TypeError: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+2026-07-01 19:34:34,445 - [WARNING] - WARNING - (osm_worker.py).script_sequence(451) - Ending script due too uncaught exception
+2026-07-01 20:23:11,989 - [ERROR] - WARNING - (osm_worker.py).script_sequence(450) - UncaughtException: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 447, in script_sequence
+    Converter.request_and_process_data(search_line)
+TypeError: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+2026-07-01 20:23:11,990 - [WARNING] - WARNING - (osm_worker.py).script_sequence(451) - Ending script due too uncaught exception
+2026-08-03 21:51:20,740 - [ERROR] - WARNING - (osm_worker.py).script_sequence(459) - UncaughtException: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 456, in script_sequence
+    Converter.request_and_process_data(search_line)
+TypeError: EarthCrawler.request_and_process_data() takes 1 positional argument but 2 were given
+2026-08-03 21:51:20,742 - [WARNING] - WARNING - (osm_worker.py).script_sequence(460) - Ending script due too uncaught exception
+2026-08-03 21:53:03,752 - [ERROR] - WARNING - (osm_worker.py).script_sequence(464) - UncaughtException: 'AppData' object has no attribute 'search_type'
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 461, in script_sequence
+    Converter.request_and_process_data(search_line)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 436, in request_and_process_data
+    single_obj_req, self.app_data.search_type.name.lower())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'AppData' object has no attribute 'search_type'. Did you mean: 'search_line'?
+2026-08-03 21:53:03,754 - [WARNING] - WARNING - (osm_worker.py).script_sequence(465) - Ending script due too uncaught exception
+2026-08-03 21:53:31,274 - [ERROR] - WARNING - (osm_worker.py).script_sequence(464) - UncaughtException: list indices must be integers or slices, not str
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 461, in script_sequence
+    Converter.request_and_process_data(search_line)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 437, in request_and_process_data
+    overp_regions = self.overpass_search(search_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 369, in overpass_search
+    search_data["object_request"][1], [4, 5, 6, 7, 8, 9, 10, 3])
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+TypeError: list indices must be integers or slices, not str
+2026-08-03 21:53:31,275 - [WARNING] - WARNING - (osm_worker.py).script_sequence(465) - Ending script due too uncaught exception
+2026-08-03 22:24:19,703 - [ERROR] - WARNING - (osm_worker.py).script_sequence(464) - UncaughtException: ('The requested data could not be downloaded. HTTP Error 429: Too many requests', <HTTPError 429: 'Too many requests'>)
+Traceback (most recent call last):
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\site-packages\OSMPythonTools\internal\cacheObject.py", line 95, in __query
+    response = urllib.request.urlopen(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\urllib\request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 429: Too many requests
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 461, in script_sequence
+    Converter.request_and_process_data(search_line)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 438, in request_and_process_data
+    self.second_nominatim_search(overp_regions)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 418, in second_nominatim_search
+    self.locations_search(i, region, cur_folder)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 259, in locations_search
+    n = self.nominatim.query(
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\site-packages\OSMPythonTools\internal\cacheObject.py", line 48, in query
+    data = self.__query(queryString, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ikomash\AppData\Local\Programs\Python\Python312\Lib\site-packages\OSMPythonTools\internal\cacheObject.py", line 99, in __query
+    raise Exception(msg, err)
+Exception: ('The requested data could not be downloaded. HTTP Error 429: Too many requests', <HTTPError 429: 'Too many requests'>)
+2026-08-03 22:24:19,704 - [WARNING] - WARNING - (osm_worker.py).script_sequence(465) - Ending script due too uncaught exception
+2026-10-08 18:48:13,092 - [ERROR] - WARNING - (osm_worker.py).script_sequence(748) - UncaughtException: 'ValueSpecEntry' object is not subscriptable
+Traceback (most recent call last):
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 745, in script_sequence
+    Converter.request_and_process_data(search_line)
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 723, in request_and_process_data
+    overp_regions = self.overpass_short_search(search_data[0])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Documents\Programms\Projects\Earth Crawler\earth-crawler\src\osm_worker.py", line 567, in overpass_short_search
+    search_data["object_request"][1], [4, 5, 6, 7, 8, 9, 10, 3])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+TypeError: 'ValueSpecEntry' object is not subscriptable
+2026-10-08 18:48:13,093 - [WARNING] - WARNING - (osm_worker.py).script_sequence(749) - Ending script due too uncaught exception

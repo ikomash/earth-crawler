@@ -1,0 +1,10 @@
+
+services:
+  earth-crawler-build:
+    image: earth_crawler-builder:3.12
+    build:
+      context: ../..
+      dockerfile: docker/linux_build/Dockerfile
+
+    volumes:
+      - ../../builds:/app/builds

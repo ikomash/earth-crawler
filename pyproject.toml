@@ -1,0 +1,9 @@
+[project]
+name = "earth_crawler"
+version = "2.0.0"
+description = "A crawler for collecting and processing Earth-related data."
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
