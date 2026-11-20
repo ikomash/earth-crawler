@@ -26,6 +26,9 @@ class HelpDialog(QDialog):
             Qt.WindowType.MSWindowsFixedSizeDialogHint)
 
         markdown_file = Path(markdown_file)
+        if not markdown_file.is_file():
+            raise FileNotFoundError(
+                f"Markdown file not found: {markdown_file}")
 
         with open(markdown_file, "r", encoding="utf-8") as f:
             markdown_text = f.read()

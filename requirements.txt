@@ -13,7 +13,11 @@ pyqtwaitingspinner
 basemap
 shapely
 pydantic
-PyQt6-WebEngine
+PyQt6==6.11.0
+PyQt6-Qt6==6.11.0
+PyQt6-WebEngine==6.11.0
+PyQt6-WebEngine-Qt6==6.11.0
 folium
 pandas
 xlsxwriter
+markdown

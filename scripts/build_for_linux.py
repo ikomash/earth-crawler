@@ -1,9 +1,10 @@
 
 import logging
 import subprocess
-from pathlib import Path
+import argparse
 
 from prepare_release import get_project_data
+from project_data_manager import LINUX_BUILD_DIR, DISTROS, ROOT_DIR
 
 
 logging.basicConfig(
@@ -12,16 +13,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-COMPOSE_FILE = ROOT_DIR / "docker" / "linux_build" / "compose.yaml"
 
+def build_linux(distro: str = "debian_12") -> None:
+    """
+    Build the Linux application using Docker Compose.
 
-def build_linux() -> None:
-    """Build the Linux application using Docker Compose."""
+    Args:
+        distro(str, optional):
+            The Linux distribution to build for. Must be one of 'debian_12' or
+            'ubuntu_22_04'. Defaults to 'debian_12'.
+
+    """
+    distro = distro.lower()
+    if distro not in DISTROS:
+        raise ValueError(f"Unsupported distro: {distro}")
+
+    compose_file = LINUX_BUILD_DIR / distro.capitalize() / "compose.yaml"
     name, version = get_project_data()
 
     logger.info("Project: %s", name)
     logger.info("Version: %s", version)
+    logger.info("Distro: %s", distro)
     logger.info("Building Linux application...")
 
     subprocess.run(
@@ -29,7 +41,7 @@ def build_linux() -> None:
             "docker",
             "compose",
             "-f",
-            str(COMPOSE_FILE),
+            str(compose_file),
             "build",
         ],
         cwd=ROOT_DIR,
@@ -41,7 +53,7 @@ def build_linux() -> None:
             "docker",
             "compose",
             "-f",
-            str(COMPOSE_FILE),
+            str(compose_file),
             "run",
             "--rm",
             "earth-crawler-build",
@@ -57,4 +69,13 @@ def build_linux() -> None:
 
 
 if __name__ == "__main__":
-    build_linux()
+    parser = argparse.ArgumentParser(description="Build Linux app in Docker.")
+    parser.add_argument(
+        "--distro",
+        choices=(*DISTROS, "all"),
+        default="all",
+    )
+    args = parser.parse_args()
+
+    for d in (DISTROS if args.distro == "all" else (args.distro,)):
+        build_linux(d)

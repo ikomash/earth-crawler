@@ -1,7 +1,7 @@
 
 import argparse
 from pathlib import Path
-from shutil import copytree, rmtree
+from shutil import copy2, copytree, rmtree
 import logging
 import sys
 from typing import Literal, Optional
@@ -131,6 +131,8 @@ def pyinstaller_build(
                     dirs_exist_ok=True
                 )
 
+        copy2(project_folder / "README.md", dist_app_folder)
+
         if move_dist:
             platform_folder.mkdir(parents=True, exist_ok=True)
             final_folder = platform_folder / app_name
@@ -177,11 +179,13 @@ def pyinstaller_build(
 
 def prepared_build(
         name: str = "earth_crawler",
-        platform: Platform = "windows") -> None:
+        platform: Platform = "windows",
+        distro: Optional[str] = None) -> None:
     """Prepare platform-specific options and build the application."""
-    upx_folder_name = (
-        "upx-5.2.1-win64" if platform == "windows" else None
-    )
+    upx_folder_name = "upx-5.2.1-win64" if platform == "windows" else \
+        ("upx-5.2.1-amd64_linux" if platform == "linux" else None)
+    if platform == "linux" and distro:
+        distro
 
     pyinstaller_build(
         app_name=name,

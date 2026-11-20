@@ -8,12 +8,26 @@ from typing import Any, Optional
 
 import folium
 from folium.plugins import MarkerCluster
-from PyQt6.QtCore import QUrl, pyqtSlot
+from PyQt6.QtCore import QObject, QUrl, pyqtSignal, pyqtSlot
 from PyQt6.QtWebEngineCore import QWebEngineSettings
+from PyQt6.QtWebChannel import QWebChannel
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QFileDialog, QVBoxLayout, QWidget
 
 from utils import format_size
+
+
+class MapBridge(QObject):
+    """Handle communication between JavaScript and Python."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    @pyqtSlot()
+    def request_export(self):
+        """Request map export from the parent widget."""
+        if self.parent():
+            self.parent().request_export()
 
 
 class MapWidget(QWidget):
@@ -42,6 +56,8 @@ class MapWidget(QWidget):
 
     max_points = 20000
     cluster_threshold = 300
+
+    exportRequested = pyqtSignal(str)
 
     def __init__(
             self,
@@ -76,6 +92,14 @@ class MapWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.web_view)
+
+        # Set up JavaScript-Python communication
+        self.channel = QWebChannel(self.web_view.page())
+        self.bridge = MapBridge(self)
+
+        self.channel = QWebChannel(self.web_view.page())
+        self.channel.registerObject("pyBridge", self.bridge)
+        self.web_view.page().setWebChannel(self.channel)
 
         self._temp_dir = tempfile.mkdtemp(prefix="earth_crawler_map_")
         self._cleanup = weakref.finalize(
@@ -207,6 +231,66 @@ class MapWidget(QWidget):
         """
         self._page_counter += 1
         path = Path(self._temp_dir) / f"map_{self._page_counter}.html"
+
+        # Add the export button and QWebChannel integration
+        # <button id="pyqt-export-btn" type="button">
+        #     &#128190; Save map
+        # </button>
+        html = html.replace(
+            "</body>",
+            """
+            <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+            <style>
+                #pyqt-export-btn {
+                    position: fixed;
+                    top: 15px;
+                    right: 15px;
+                    z-index: 99999;
+                    padding: 9px 14px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    background: white;
+                    color: #333;
+                    font: 13px Arial, sans-serif;
+                    cursor: pointer;
+                    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+                }
+
+                #pyqt-export-btn:hover {
+                    background: #f0f0f0;
+                }
+            </style>
+
+            <button id="pyqt-export-btn" type="button">
+                    <svg xmlns="http://w3.org" viewBox="0 0 36 36" width="16" height="16">
+                        <path fill="#5856D6" d="M35 32c0 2.209-1.791 4-4 4H5c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h24l6 6v26z"/>
+                        <path fill="#F2F2F7" d="M31 32c0 1.104-.896 2-2 2H7c-1.104 0-2-.896-2-2V19c0-1.104.896-2 2-2h22c1.104 0 2 .896 2 2v13z"/>
+                        <path fill="#FF3B30" d="M5 19c0-1.104.896-2 2-2h22c1.104 0 2 .896 2 2v2H5v-2z"/>
+                        <path fill="#C7C7CC" d="M8 24h20v1H8zm0 4h20v1H8zm0 4h14v1H8z"/>
+                        <path fill="#D1D1D6" d="M27 11c0 1.104-.896 2-2 2H11c-1.104 0-2-.896-2-2V0h18v11z"/>
+                        <path fill="#5856D6" d="M21 2h4v9h-4z"/>
+                    </svg>
+
+
+                Save map
+            </button>
+
+            <script>
+                new QWebChannel(qt.webChannelTransport, function(channel) {
+                    window.pyBridge = channel.objects.pyBridge;
+
+                    document.getElementById('pyqt-export-btn')
+                        .addEventListener('click', function() {
+                            window.pyBridge.request_export();
+                        });
+                });
+            </script>
+            </body>
+            """,  # noqa: E501
+            1
+        )
+
         path.write_text(html, encoding="utf-8")
         self._page_files.append(path)
         while len(self._page_files) > 2:
@@ -284,3 +368,15 @@ class MapWidget(QWidget):
         """Remove all objects from the map."""
         self._reset_objects()
         self._render(location=[0, 0], zoom=2, tiles="OpenStreetMap")
+
+    @pyqtSlot()
+    def request_export(self):
+        """Ask the user where to save the map KML file."""
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save map",
+            "map.kml",
+            "KML files (*.kml);;Excel files (*.xlsx);;All files (*)"
+        )
+        if path:
+            self.exportRequested.emit(path)

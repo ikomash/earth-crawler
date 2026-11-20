@@ -1,4 +1,6 @@
+from datetime import datetime
 import logging
+from pathlib import Path
 import random
 import re
 import threading
@@ -449,6 +451,7 @@ class EarthCrawler:
         # Excel export is collected here (sheet name -> DataFrame) while the
         # search runs and written to disk in one go by save_excel().
         self._excel_sheets: dict[str, pd.DataFrame] = {}
+        self.kml_doc = simplekml.Kml()
 
         # Set from another thread (the GUI) by cancel() to stop the search.
         self._cancel_event = threading.Event()
@@ -716,11 +719,16 @@ class EarthCrawler:
             return True
         return False
 
-    def save_kml(self, obj_name: str):
+    def save_kml(
+            self,
+            obj_name: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+            obj_path: Optional[str] = None):
         """Save the current KML document for the processed object.
 
         Args:
             obj_name (str): Base name used for the exported file.
+            obj_path (Optional[str]):
+                Path where the exported file should be saved.
         """
         if not self._is_kml_empty(self.kml_doc):
             if self.app_data.kml.polygons_to_lines:
@@ -728,7 +736,10 @@ class EarthCrawler:
             else:
                 sub_name = "(polygons)"
             kml_file_name = f"{obj_name} {sub_name}"
-            self.kml_doc.save(f".\\export\\{kml_file_name}.kml")
+            if obj_path:
+                self.kml_doc.save(obj_path)
+            else:
+                self.kml_doc.save(f".\\export\\{kml_file_name}.kml")
             self.logger.info(f"KML file saved as {kml_file_name}")
         else:
             self.logger.warning("KML file is empty. Nothing to save.")
@@ -789,19 +800,29 @@ class EarthCrawler:
         self.logger.debug(
             "Excel sheet '%s' prepared with %s locations", name, len(rows))
 
-    def save_excel(self, obj_name: str):
+    def save_excel(
+            self,
+            obj_name: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+            obj_path: Optional[str] = None):
         """Write all collected location sheets to '<obj_name>.xlsx'.
 
         The file is created in the export folder. Nothing is written when no
         sheet has been collected.
 
         Args:
-            obj_name (str): Base name used for the exported file.
+            obj_name (str, optional):
+                Base name used for the exported file. Defaults to a timestamp.
+            obj_path (Optional[str]):
+                Path where the exported file should be saved.
         """
         if not self._excel_sheets:
             self.logger.warning("Excel export is empty. Nothing to save.")
             return
-        file_path = Paths.export_folder.joinpath(f"{obj_name}.xlsx")
+        if obj_path:
+            file_path = Path(obj_path)
+        else:
+            file_path = Paths.export_folder.joinpath(f"{obj_name}.xlsx")
+
         with pd.ExcelWriter(file_path, engine="xlsxwriter") as writer:
             for sheet_name, df in self._excel_sheets.items():
                 df.to_excel(writer, sheet_name=sheet_name, index=False)
@@ -1556,6 +1577,32 @@ class OsmWorker(QObject):
         else:
             self.app_data.error_found = 0
         self.object_processed.emit()
+
+    @pyqtSlot(str)
+    def save_kml(self, obj_path: str):
+        """Save the KML file for the current object.
+
+        Args:
+            obj_path (str): Path where the exported file should be saved.
+        """
+        self.logger.info("Manual KML save requested: %r", obj_path)
+        try:
+            self.crawler.save_kml(obj_path=obj_path)
+        except Exception:
+            self.logger.exception("KML save failed")
+
+    @pyqtSlot(str)
+    def save_excel(self, obj_path: str):
+        """Save the Excel file for the current object.
+
+        Args:
+            obj_path (str): Path where the exported file should be saved.
+        """
+        self.logger.info("Manual Excel save requested: %r", obj_path)
+        try:
+            self.crawler.save_excel(obj_path=obj_path)
+        except Exception:
+            self.logger.exception("Excel save failed")
 
     def finish_processing(self):
         """Finalize the processing workflow and reset the GUI state."""

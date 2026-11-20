@@ -1,0 +1,15 @@
+name: earth-crawler
+services:
+  earth-crawler-build:
+    image: earth_crawler-builder-debian:${VERSION}
+    container_name: earth_crawler_builder_debian
+    build:
+      context: ../../..
+      dockerfile: Docker/linux_build/Dockerfile
+      args:
+        BASE_IMAGE: python:3.12-slim
+        PYTHON_APT: ""
+    command: ["python3", "scripts/build_with_pyinstaller.py",
+              "--platform", "linux"]
+    volumes:
+      - ../../../builds:/app/builds

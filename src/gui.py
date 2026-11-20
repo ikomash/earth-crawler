@@ -2,6 +2,7 @@
 import logging
 import math
 import os
+from pathlib import Path
 import subprocess
 import sys
 from queue import Queue
@@ -37,6 +38,9 @@ class MainWidget(QWidget):
     """ Composes all elements together. """
     from_queue = pyqtSignal(object)
     second_search_signal = pyqtSignal(dict)
+
+    save_kml_signal = pyqtSignal(str)
+    save_excel_signal = pyqtSignal(str)
 
     def __init__(self, parent: Optional[QObject] = None):
         """Initialize the main widget.
@@ -334,6 +338,7 @@ class MainWidget(QWidget):
         self.tab_widget.addTab(self.log_widget, log_icon, "Log")
         self.map_widget = MapWidget(self, logger=self.logger)
         map_icon = QIcon(str(Paths.map_location_pin_icon_path))
+        self.map_widget.exportRequested.connect(self.save_map)
         self.tab_widget.addTab(self.map_widget, map_icon, "Map")
         v_layout.addWidget(self.tab_widget)
 
@@ -344,6 +349,10 @@ class MainWidget(QWidget):
         self.osm_worker.moveToThread(self.osm_thread)
         self.osm_thread.finished.connect(self.osm_worker.deleteLater)
         self.osm_thread.finished.connect(self.osm_thread.deleteLater)
+
+        # Connect signals for saving KML and Excel files
+        self.save_kml_signal.connect(self.osm_worker.save_kml)
+        self.save_excel_signal.connect(self.osm_worker.save_excel)
 
         # Signals connection
         self.osm_worker.sub_obj_signal.connect(
@@ -382,8 +391,12 @@ class MainWidget(QWidget):
 
     def _show_help(self):
         """Show the help dialog."""
-        help_dialog = HelpDialog(Paths.help_path, Paths.assets_folder, self)
-        help_dialog.show()
+        try:
+            help_dialog = HelpDialog(
+                Paths.help_path, Paths.assets_folder, self)
+            help_dialog.show()
+        except FileNotFoundError:
+            self.logger.error("Help file not found.")
 
     def open_export_directory(self):
         """Open the export folder in the system file manager."""
@@ -834,6 +847,14 @@ class MainWidget(QWidget):
         else:
             self.logger.info("No search results found for the current request")
             self.check_queue()
+
+    @pyqtSlot(str)
+    def save_map(self, path: str):
+        """Save the current Folium map as an kml or xlsx file."""
+        if Path(path).suffix.lower() == ".xlsx":
+            self.save_excel_signal.emit(path)
+        else:
+            self.save_kml_signal.emit(path)
 
 
 class MainWindow(QMainWindow):

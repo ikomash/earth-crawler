@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
 
 from gui import MainWindow
 from __version__ import __version__
@@ -20,6 +21,7 @@ if __name__ == "__main__":
     os.chdir(Path(__file__).parent.parent.resolve())
     app = QApplication(sys.argv)
     app.setStyle('fusion')
+    app.styleHints().setColorScheme(Qt.ColorScheme.Light)
     window = MainWindow()
 
     sys.exit(app.exec())

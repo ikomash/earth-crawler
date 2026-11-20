@@ -6,6 +6,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     libxkbcommon0 \
+    libxkbcommon-x11-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxtst6 \
+    libasound2 \
+    libxkbfile1 \
+    libgssapi-krb5-2 \
     libxcb-icccm4 \
     libxcb-image0 \
     libxcb-keysyms1 \
@@ -14,14 +23,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-shape0 \
     libxcb-xinerama0 \
     libxcb-xkb1 \
-    libxkbcommon-x11-0 \
     libxcb-cursor0 \
     libegl1 \
     fontconfig \
     libdbus-1-3 \
+    libnspr4 \
+    libnss3 \
     && rm -rf /var/lib/apt/lists/*
 RUN useradd -m earth_crawler
 WORKDIR /app
+RUN mkdir -p export && chown earth_crawler:earth_crawler /app export
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY --chown=earth_crawler:earth_crawler . .
