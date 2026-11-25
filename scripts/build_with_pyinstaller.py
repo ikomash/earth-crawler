@@ -4,12 +4,40 @@ from pathlib import Path
 from shutil import copy2, copytree, rmtree
 import logging
 import sys
+from glob import glob
+from time import sleep
 from typing import Literal, Optional
 
 from PyInstaller.__main__ import run as run_installer
 
 
 Platform = Literal["windows", "linux"]
+
+
+def move_folder(
+        src: Path, dst: Path, retries: int = 5, delay: float = 2.0) -> None:
+    """
+    Rename src to dst; retry on locks, then fall back to copy+delete.
+
+    Args:
+        src (Path): Source folder.
+        dst (Path): Destination folder.
+        retries (int): Number of retries on PermissionError.
+        delay (float): Delay in seconds between retries.
+    """
+    for _ in range(retries):
+        try:
+            src.rename(dst)
+            return
+        except PermissionError:
+            sleep(delay)
+
+    try:
+        copytree(src, dst)
+    except Exception:
+        rmtree(dst, ignore_errors=True)
+        raise
+    rmtree(src, ignore_errors=True)
 
 
 def pyinstaller_build(
@@ -20,21 +48,34 @@ def pyinstaller_build(
         move_dist: bool = True,
         rm_spec: bool = True,
         source_file: Optional[Path] = None,
-        icon_name: Optional[str] = None) -> None:
+        icon_name: Optional[str] = None,
+        distro: Optional[str] = None) -> None:
     """Build a standalone application with PyInstaller.
 
     Args:
-        app_name: Executable name without extension.
-        platform: Target platform. Must match the OS running PyInstaller.
-        upx_folder_name: Optional UPX directory inside scripts/upx/.
-        rm_build: Remove temporary build files after a successful build.
-        move_dist: Move the application into the final platform directory.
-        rm_spec: Remove the generated PyInstaller spec file.
-        source_file: Source script relative to src/. Defaults to app_name.py.
-        icon_name: Windows icon in assets/. Defaults to app_name.ico.
+        app_name (str): Executable name without extension.
+        platform (Platform):
+            Target platform. Must match the OS running PyInstaller.
+        upx_folder_name (Optional[str]):
+            Optional UPX directory inside scripts/upx/.
+        rm_build (bool): Remove temporary build files after a successful build.
+        move_dist (bool):
+            Move the application into the final platform directory.
+        rm_spec (bool): Remove the generated PyInstaller spec file.
+        source_file (Optional[Path]):
+            Source script relative to src/. Defaults to app_name.py.
+        icon_name (Optional[str]):
+            Windows icon in assets/. Defaults to app_name.ico.
+        distro (Optional[str]): Optional subfolder inside the platform folder
+            (e.g. debian_12), so builds for different distros don't mix.
     """
     if platform not in ("windows", "linux"):
         raise ValueError(f"Unsupported platform: {platform}")
+
+    if platform == "linux" and sys.platform != "linux":
+        raise RuntimeError(
+            "Linux build must run on Linux. Use scripts/build_for_linux.py."
+        )
 
     logging.basicConfig(
         level=logging.INFO,
@@ -54,9 +95,13 @@ def pyinstaller_build(
     version = __version__.replace(".", "_")
     version_folder = project_folder / "builds" / version
     platform_folder = version_folder / platform
+    if distro:
+        platform_folder = platform_folder / distro
 
     # Temporary files are kept separate from the final application.
-    temp_folder = version_folder / f".{platform}_build"
+    temp_name = f".{platform}_{distro}_build" if distro \
+        else f".{platform}_build"
+    temp_folder = version_folder / temp_name
     dist_folder = temp_folder / "dist"
     build_folder = temp_folder / "build"
     spec_folder = temp_folder / "spec"
@@ -90,10 +135,10 @@ def pyinstaller_build(
         "--hidden-import=mpl_toolkits.basemap",
         "--collect-data=mpl_toolkits.basemap_data",
         "--hidden-import=OSMPythonTools",
+        "--hidden-import=appdirs",
         "--collect-data=OSMPythonTools",
         "--exclude-module=PyQt5",
         "--exclude-module=tkinter",
-        "--exclude-module=unittest",
     ]
 
     if platform == "windows":
@@ -110,7 +155,14 @@ def pyinstaller_build(
             if not upx_path.is_dir():
                 raise FileNotFoundError(f"UPX directory not found: {upx_path}")
             args.append(f"--upx-dir={upx_path}")
-
+    if platform == "linux":
+        # PyInstaller skips some system libs by default (libwayland among
+        # them), but libQt6WebEngineCore is linked against libwayland-server.
+        for pattern in (
+                "/usr/lib/*-linux-gnu/libwayland-server.so.0",
+                "/usr/lib/libwayland-server.so.0"):
+            for lib in glob(pattern):
+                args.append(f"--add-binary={lib}:.")
     try:
         run_installer(args)
 
@@ -146,7 +198,7 @@ def pyinstaller_build(
                 final_folder.rename(old_folder)
 
             try:
-                dist_app_folder.rename(final_folder)
+                move_folder(dist_app_folder, final_folder)
             except Exception:
                 if old_folder.exists() and not final_folder.exists():
                     old_folder.rename(final_folder)
@@ -165,7 +217,13 @@ def pyinstaller_build(
         if rm_build and build_folder.exists():
             rmtree(build_folder)
 
-        # Remove the temporary directory if it is now empty.
+        # Remove the temporary directorys if they are empty.
+        if dist_folder.exists():
+            try:
+                dist_folder.rmdir()
+            except OSError:
+                pass
+
         if temp_folder.exists():
             try:
                 temp_folder.rmdir()
@@ -181,11 +239,19 @@ def prepared_build(
         name: str = "earth_crawler",
         platform: Platform = "windows",
         distro: Optional[str] = None) -> None:
-    """Prepare platform-specific options and build the application."""
+    """
+    Prepare platform-specific options and build the application.
+
+    Args:
+        name (str): Executable name without extension.
+        platform (Platform):
+            Target platform. Must match the OS running PyInstaller.
+        distro (Optional[str]): Optional subfolder inside the platform folder
+            (e.g. debian_12), so builds for different distros don't mix.
+
+    """
     upx_folder_name = "upx-5.2.1-win64" if platform == "windows" else \
         ("upx-5.2.1-amd64_linux" if platform == "linux" else None)
-    if platform == "linux" and distro:
-        distro
 
     pyinstaller_build(
         app_name=name,
@@ -195,6 +261,7 @@ def prepared_build(
         move_dist=True,
         rm_spec=True,
         icon_name="app_icon.ico",
+        distro=distro,
     )
 
 
@@ -208,6 +275,11 @@ if __name__ == "__main__":
         default="windows",
         help="Target platform (default: windows).",
     )
+    parser.add_argument(
+        "--distro",
+        default=None,
+        help="Subfolder inside the platform folder (e.g. debian_12).",
+    )
     args = parser.parse_args()
 
-    prepared_build(platform=args.platform)
+    prepared_build(platform=args.platform, distro=args.distro)

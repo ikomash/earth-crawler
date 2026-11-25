@@ -13,6 +13,7 @@ from project_data_manager import (
     LINUX_BUILD_DIR,
     DISTROS,
 )
+from build_for_linux import build_linux
 
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -49,7 +50,8 @@ def prepare_release_full():
     """Prepare project for release (with build)."""
     name, version = prepare_release_minimal()
     prepared_build(name, "windows")
-    prepared_build(name, "linux")
+    for distro in DISTROS:
+        build_linux(distro)
 
 
 if __name__ == "__main__":

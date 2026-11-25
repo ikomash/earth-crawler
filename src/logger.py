@@ -8,7 +8,6 @@ import threading
 from collections import deque
 from logging import StreamHandler
 from logging.handlers import RotatingFileHandler
-from os import makedirs
 from pathlib import Path
 from typing import Union, Optional
 
@@ -32,13 +31,7 @@ def mkdir_if_none(folder: Union[str, Path]):
     Args:
         folder (Union[str, Path]): Folder path.
     """
-    if type(folder) is str:
-        path = Path(folder)
-    else:
-        path = folder  # type: ignore
-    exists = path.exists()
-    if not exists:
-        makedirs(folder)
+    Path(folder).mkdir(parents=True, exist_ok=True)
 
 
 # Colors of the log lines, from the most to the least severe level.

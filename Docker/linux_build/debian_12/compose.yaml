@@ -1,4 +1,4 @@
-name: earth-crawler
+name: earth-crawler-build-debian-12
 services:
   earth-crawler-build:
     image: earth_crawler-builder-debian:${VERSION}
@@ -10,6 +10,6 @@ services:
         BASE_IMAGE: python:3.12-slim
         PYTHON_APT: ""
     command: ["python3", "scripts/build_with_pyinstaller.py",
-              "--platform", "linux"]
+              "--platform", "linux", "--distro", "debian_12"]
     volumes:
       - ../../../builds:/app/builds

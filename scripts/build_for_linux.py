@@ -3,9 +3,9 @@ import logging
 import subprocess
 import argparse
 
-from prepare_release import get_project_data
-from project_data_manager import LINUX_BUILD_DIR, DISTROS, ROOT_DIR
-
+from project_data_manager import (
+    LINUX_BUILD_DIR, DISTROS, ROOT_DIR, get_project_data,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,7 +28,7 @@ def build_linux(distro: str = "debian_12") -> None:
     if distro not in DISTROS:
         raise ValueError(f"Unsupported distro: {distro}")
 
-    compose_file = LINUX_BUILD_DIR / distro.capitalize() / "compose.yaml"
+    compose_file = LINUX_BUILD_DIR / distro.lower() / "compose.yaml"
     name, version = get_project_data()
 
     logger.info("Project: %s", name)
@@ -63,8 +63,9 @@ def build_linux(distro: str = "debian_12") -> None:
     )
 
     logger.info(
-        "Linux build completed: builds/%s/linux/",
+        "Linux build completed: builds/%s/linux/%s/",
         version.replace(".", "_"),
+        distro,
     )
 
 
@@ -77,5 +78,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    for d in (DISTROS if args.distro == "all" else (args.distro,)):
-        build_linux(d)
+    # for d in (DISTROS if args.distro == "all" else (args.distro,)):
+    #     build_linux(d)
+    build_linux("ubuntu_22_04")  # "debian_12"

@@ -9,7 +9,7 @@ LINUX_BUILD_DIR = ROOT_DIR / "Docker" / "linux_build"
 PYPROJECT_FILE = ROOT_DIR.joinpath("pyproject.toml")
 VERSION_FILE = ROOT_DIR.joinpath("src", "__version__.py")
 DOCKER_ENV_FILE = ROOT_DIR.joinpath(".env")
-DISTROS = ("debian_12",)  # "ubuntu_22_04"
+DISTROS = ("debian_12", "ubuntu_22_04")
 
 
 def get_project_data() -> tuple[str, str]:

@@ -1,6 +1,7 @@
+# Build the Docker image for the project.
 import subprocess
 
-from prepare_release import get_project_data
+from project_data_manager import get_project_data
 
 
 if __name__ == "__main__":

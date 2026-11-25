@@ -1,1 +1,3 @@
 pyinstaller
+appdirs
+setuptools<81

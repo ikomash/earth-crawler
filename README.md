@@ -102,6 +102,7 @@ Tallinn=[3,]
 - The **map** is for a quick look: outlines are simplified, at most 20 000 locations are shown, and many locations are grouped into clusters. Use the exported files for the complete data.
 - The public OSM servers limit the load. Requests that fail because the server is overloaded are repeated automatically (4 attempts with growing pauses). A very large request, for example all settlements of a big country, can still be stopped by the server after about 3 minutes: split it into smaller regions or choose fewer place types.
 - Messages and errors are shown in the Log tab and written to the log file (see the `logs` folder).
+- The Linux binaries can also be run on Windows using WSL2 (Windows Subsystem for Linux 2) using the command like `wsl ./earth_crawler`.
 
 ## Screenshots
 

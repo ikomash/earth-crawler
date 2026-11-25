@@ -158,7 +158,7 @@ class MapWidget(QWidget):
 
         if refresh_map:
             self._reset_objects()
-            self._render()
+            self._render(log_page=not initial)
 
     def _reset_objects(self):
         """Forget all collected objects."""
@@ -172,7 +172,8 @@ class MapWidget(QWidget):
             location: Any = None,
             zoom: Optional[int] = None,
             tiles: Optional[str] = None,
-            fit: bool = False):
+            fit: bool = False,
+            log_page: bool = True):
         """Build the Folium map from the collected objects and show it.
 
         Args:
@@ -180,6 +181,7 @@ class MapWidget(QWidget):
             zoom (Optional[int], optional): Zoom level. Defaults to the base.
             tiles (Optional[str], optional): Tile layer. Defaults to the base.
             fit (bool, optional): Zoom to all collected objects.
+            log_page (bool, optional): Log map page details.
         """
         options = {"prefer_canvas": True, **self._map_kwargs}
         self.map = folium.Map(
@@ -216,9 +218,10 @@ class MapWidget(QWidget):
 
         html = self.map.get_root().render()
         self._show_html(html)
-        self.logger.info(
-            f"Map page: {format_size(len(html))}, "
-            f"{len(self._polygons)} polygons, {len(self._points)} points")
+        if log_page:
+            self.logger.info(
+                f"Map page: {format_size(len(html))}, "
+                f"{len(self._polygons)} polygons, {len(self._points)} points")
 
     def _show_html(self, html: str):
         """Show a page in the web view, loading it from a file.

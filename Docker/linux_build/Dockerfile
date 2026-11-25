@@ -6,6 +6,15 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
+ARG PYTHON_APT=""
+RUN if [ -n "$PYTHON_APT" ]; then \
+      apt-get update \
+      && apt-get install -y --no-install-recommends \
+         software-properties-common gnupg ca-certificates \
+      && add-apt-repository -y ppa:deadsnakes/ppa \
+      && rm -rf /var/lib/apt/lists/*; \
+    fi
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ${PYTHON_APT} \
     binutils \
@@ -37,13 +46,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libdbus-1-3 \
     libnspr4 \
     libnss3 \
+    libwayland-server0 \
+    libwayland-client0 \
+    libwayland-cursor0 \
+    libwayland-egl1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY requirements.txt requirements-build.txt ./
-RUN python3 -m pip install -r requirements.txt \
-    && python3 -m pip install -r requirements-build.txt
+RUN python3.12 -m ensurepip --upgrade \
+    && python3.12 -m pip install -r requirements.txt \
+    && python3.12 -m pip install -r requirements-build.txt
 
 COPY . .
 

@@ -1,0 +1,16 @@
+
+name: earth-crawler-build-ubuntu-22-04
+services:
+  earth-crawler-build:
+    image: earth_crawler-builder-ubuntu:${VERSION}
+    container_name: earth_crawler_builder_ubuntu
+    build:
+      context: ../../..
+      dockerfile: Docker/linux_build/Dockerfile
+      args:
+        BASE_IMAGE: ubuntu:22.04
+        PYTHON_APT: "python3.12 python3.12-venv python3.12-dev"
+    command: ["python3.12", "scripts/build_with_pyinstaller.py",
+              "--platform", "linux", "--distro", "ubuntu_22_04"]
+    volumes:
+      - ../../../builds:/app/builds
